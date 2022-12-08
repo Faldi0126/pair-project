@@ -1,0 +1,109 @@
+# Livecode note
+
+Inisialisasi:
+
+1. npm init -y
+2. npm i sequelize pg express ejs
+3. touch .gitingnore -> isi node_modules
+4. sequelize init
+5. configurasi config untuk postgres
+6. sequelize db:create
+--------------- cek dbeaver untuk database baru---------------
+
+Model create dan migrate:
+
+1. Buat model yang tidak punya foreign key dulu
+2. sequelize model:create --name ModelName --attributes name:string, age:integer
+3. di file migration baru, hapus async, ganti await
+4. di file model baru, edit properti (default value/not null), check dulu
+5. migrate ke database --> sequelize db:migrate
+- -------------- cek dbeaver untuk kolom header baru ------------
+
+Add column/fk column:
+
+1. buat migration --> sequelize migration:create --name add-fk-column-to-model
+2. di file model, edit/tambahin column baru dengan datatypenya
+3. di file migration baru, edit async await, tambahin return qI addColumn 'namaTabel', 'namaFK', {{references}, onDelete, onUpdate} +++ tambah remove column jangan lupa, parameter ketiganya kosong ([https://www.folkstalk.com/2022/10/sequelize-migration-add-column-foreign-key-with-code-examples.html](https://www.folkstalk.com/2022/10/sequelize-migration-add-column-foreign-key-with-code-examples.html))
+4. INGET JANGAN TYPO
+
+references: [https://sequelize.org/docs/v6/core-concepts/assocs/](https://sequelize.org/docs/v6/core-concepts/assocs/)
+
+references: [https://sequelize.org/docs/v6/core-concepts/assocs/](https://sequelize.org/docs/v6/core-concepts/assocs/)
+
+add column references: [https://sequelize.org/api/v6/class/src/dialects/abstract/query-interface.js~queryinterface#instance-method-createTable](https://sequelize.org/api/v6/class/src/dialects/abstract/query-interface.js~queryinterface#instance-method-createTable)
+
+on delete cascade on update cascade, cascade kapital dalam kutip, onDelete
+
+1. DI MODEL TAMBAHIN KOLOM BARU + DATATYPE FOREGN (CEK LAGI)
+2. migratin lagi -> sequelize db:migrate
+3. kalo ada salah-salah bisa undo --> sequelize db:migrate:undo
+4.
+---------------- cek dbeaver untuk column foreign key baru ------
+
+Model1.hasMany(models.Model2)  <-- ga perlu foreign key lagi, MODEL NO S
+
+Proses Seeding:
+
+1. KALO JSON ADA ID, NANTI DI SETUP BULKINSERT delete el.id
+2. sequelize seed:create --name seed-siModel
+3. di file baru seeder, edit async await, fs rqr fs, json parse + fsread + map, elcreatedAt new Date, elid delete(kalo ada)
+4. return qI bulkInsert 'namaTabelSSSS’, dataAtas
+5. bawahnya return qI bulkDelete 'namaTabel' kosong kosong
+6. seed semua -> sequelize db:seed:all, kalo satuan -> sequelize db:seed --seed fileName
+- ---------- cek dBeaver untuk seeding data masuk apa engga ------
+
+Configurasi appjs:
+
+1. Need express, look at hello world on express
+2. Need view engine & body parser
+
+https://expressjs.com/en/starter/hello-world.html
+
+https://www.geeksforgeeks.org/how-to-setup-view-engine-in-node-js
+
+https://www.geeksforgeeks.org/express-js-express-urlencoded-function
+
+3. Import the controller
+
+---
+
+Folder views & controllers:
+
+1. controller js need to import the ..models folder, variable dibungkus dalam object. Controller also need Op (dibungkus object) equal require sequelize, buat nanti pakai function dari sequelize
+2. in Controller class controller, static yourName rekres, bawahnya then isi data, bawahnya catch isi error, pake . jangan lupa
+3. also export the controller, nanti dipakai sama router/app
+
+———— Sorting ——-
+
+order double braces(siku) ‘property’ ‘ASC/DESC’
+
+TETANGGANYA INCLUDE & WHERE
+
+---------------- Fitur search -----------------------------------
+
+**************************************************REQUIRE OP DULU(cek lagi)**************************************************
+0. DI EJS SEARCH INPUT DIBUNGKUS DENGAN <FORM>, FORM ACTION LOKASI SEKARANG, GA PERLU METHOD/METHODNYA GET
+0.5. NAMA DI FORM NAME EJS SESUAI DENGAN YG MAU DICARI, BIAR GA RIBET 
+
+1. butuh variable request query, cek di console log, trs tangkap di variable, NAMA SESUAI APA YANG DICARI
+2. butuh variable option, isinya {dimana: {property request: {kondisinyaCommanLain1[OP]/LAIN}}}, jangan sampe salah jumlah {}
+3. if (namaVariabelno1) {variabelNo2.where.variableNo1 = {[OnePiece.iLike]: `%variableNo1dalamTempLiteral%`}}
+
+1. JANGAN LUPA SI OPTION MASUK KE () SI FINDALL CONTOHNYA
+
+---------------Bikin Hook-------------------------------------
+1. Liat dokumentasi
+
+-----------------Validasi-----------------------------------
+1. Validasi di model dulu, kalo message harus di dalem pesan error, cek dokumentasi,
+	wajib ada allowNull dulu false, terus dalem nya validate curly baru masuk si keywordnya, biasanya notEmpty sama ada notNull(tetanggaan)
+2. di post pas add/edit --> di catch isi err, panah, pake conditional, kalo err.name itu sequelizevalidationerror,
+   bikin array kosong, terus err.errors di for each, el => arrayKosong.push el.message, terus array kosong keisi pesan tadi kan,
+	 bawahnya res send (arrayKosong), MASIH ADA ELSE , res send err aja else-nya
+
+---------------- TIPS NOTES -----------------------------------
+@ buat nyari yang spesifik aja, bisa pake attributes ['keyProperty1', 'keyProperty2'], di dalem ({}) tetangganya include/where
+@ Untuk +/- properti bisa pake decrement/increment, contoh(Ini palng atas, kaya findall) Model.decrement({apa/peroperti: sebanyakApa}, {dimana:{id}})  <-- where tetangganya {}, jadi ada dua {}
+@ INGET EDIT ITU PAKE UPDATE, DAN WHERE HARUS ADA
+@ KALO CUMA UPDATE SATU AJA BERDASAR PARAM, DI GET FORM LANGSUNG RENDER AJA + KIRIM VARIABLE PARAM, GA PERLU PANGGIL MODEL
+@JANGAN LUPA %= DI EJS,
